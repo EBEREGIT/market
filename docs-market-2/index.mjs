@@ -22,7 +22,7 @@ console.log(`Balance is ${suBal} ${suStr}`);
 const auBal = toAU(suBal);
 console.log(`Balance is ${auBal} ${auStr}`);
 console.log(`Balance is ${toSU(auBal)} ${suStr}`);
-console.log(`Balance is ${toSU(auBal)} ${suStr}`);
+const showBalance = async (acc) => console.log(`Your Balance is ${toSU(await stdlib.balanceOf(acc))} ${suStr}.`);
 
 const acc = await stdlib.newTestAccount(stdlib.parseCurrency(1000));
 
@@ -58,11 +58,11 @@ if (role === 'seller') {
         }
     };
 
-    //await showBalance(acc);
+    await showBalance(acc);
     const ctc = acc.contract(backend);
     await ctc.participants.Seller(sellerInteract);
     await backend.Seller(ctc, sellerInteract);
-    //await showBalance(acc);
+    await showBalance(acc);
 
 // Buyer
 } else {
@@ -80,18 +80,18 @@ if (role === 'seller') {
                 order.prodAmt = await ask.ask(`Enter number of units, or 0 to exit:`, (x => x));
                 const p = sellerInfo.products[order.prodNum - 1];
                 const unitWord = order.prodAmt == 1 ? p.unit : p.units;
-                console.log(`You are ordering ${order.prodAmt} ${unitWord} of ${p.name} at ${toSu(p.price)} ${suStr} per ${p.unit}.`);
+                console.log(`You are ordering ${order.prodAmt} ${unitWord} of ${p.name} at ${toSU(p.price)} ${suStr} per ${p.unit}.`);
             }
             return order;
         },
-        confirmPrice: async (total) => await ask.ask(`Do you want to complete the purchase for ${toSU(total)} ${suStr}?`, ask.yesno),
+        confirmPurchase: async (total) => await ask.ask(`Do you want to complete the purchase for ${toSU(total)} ${suStr}?`, ask.yesno),
     };
 
     const info = await ask.ask(`Paste contract info: `, (s) => JSON.parse(s));
     const ctc = acc.contract(backend, info);
-    //await showBalance(acc);
+    await showBalance(acc);
     await ctc.p.Buyer(buyerInteract);
-    //await showBalance(acc);
+    await showBalance(acc);
 
     ask.done();
 };
