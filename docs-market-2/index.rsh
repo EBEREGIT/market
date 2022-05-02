@@ -12,6 +12,9 @@ const products = Array(product, 3);
 const commonInteract = {
   reportCancellation: Fun([], Null),
   reportExit: Fun([], Null),
+  reportPayment: Fun([UInt], Null),
+  reportTransfer: Fun([UInt], Null),
+  reportFulfillment: Fun([product, UInt], Null),
 };
 
 const sellerInteract = {
@@ -20,16 +23,7 @@ const sellerInteract = {
     announcement: announcement,
     products: products, 
   }),
-  //Object({ startingBid: UInt, timeout: UInt }))
-  reportReady: Fun(Object({
-    announcement: Bytes(28),
-    products: Array(Object({
-      name: Bytes(10),
-      price: UInt,
-      unit: Bytes(6),
-      units: Bytes(8),
-    }), 3)
-  }), Null),
+  reportReady: Fun([announcement, products], Null),
 };
 
 const buyerInteract = {
@@ -37,7 +31,8 @@ const buyerInteract = {
   shop: Fun(
     [Object({ announcement: announcement, products: products })],
     Object({ prodNum: UInt, prodAmt: UInt })
-  )
+  ),
+  confirmPurchase: Fun([UInt], Bool),
 };
 
 export const main = Reach.App(() => {
@@ -49,7 +44,7 @@ export const main = Reach.App(() => {
     const sellerInfo = declassify(interact.sellerInfo); 
   });
   S.publish(sellerInfo);
-  S.interact.reportReady(sellerInfo);
+  S.interact.reportReady(sellerInfo.announcement, sellerInfo.products);
   commit();
   
   B.only(() => {
@@ -64,6 +59,33 @@ export const main = Reach.App(() => {
   } else {
   commit();
   }
+
+  S.only(() => { 
+    const total = sellerInfo.products[order.prodNum - 1].price * order.prodAmt; 
+  });
+  S.publish(total);
+  commit();
+
+  B.only(() => { 
+    const willBuy = declassify(interact.confirmPurchase(total)); 
+  });
+  B.publish(willBuy);
+
+  if (!willBuy) {
+    commit();
+    each([S, B], () => interact.reportCancellation());
+    each([S, B], () => interact.reportExit());
+    exit();
+  } else {
+    commit();
+  }
+
+  B.pay(total);
+  each([S, B], () => interact.reportPayment(total));
+  transfer(total).to(S);
+  each([S, B], () => interact.reportTransfer(total));
+  each([S, B], () => interact.reportFulfillment(sellerInfo.products[order.prodNum - 1], order.prodAmt));
+  commit();
 
   exit();
 });
