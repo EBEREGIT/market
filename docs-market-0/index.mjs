@@ -26,27 +26,14 @@ const showBalance = async (acc) => console.log(`Your Balance is ${toSU(await std
 
 const acc = await stdlib.newTestAccount(stdlib.parseCurrency(1000));
 
-const commonInteract = {
-    reportCancellation: () => {
-        console.log(`${role == 'buyer' ? 'You' : 'The buyer'} cancelled the order.`);
-    },
-    reportPayment: (payment) => console.log(`${role == 'buyer' ? 'You' : 'The Buyer'} paid ${toSU(payment)} ${suStr} to the contract.`),
-    reportTransfer: (payment) => console.log(`The contract paid ${toSU(payment)} ${suStr} to ${role == 'seller' ? 'you' : 'the seller'}.`),
-    reportFulfillment: (p, amt) => {
-        const subjectVerb = role == 'seller' ? 'You owe' : 'The seller owes';
-        const directObject = role == 'buyer' ? 'you' : 'the buyer';
-        console.log(`${subjectVerb} ${directObject} ${amt} ${amt == 1 ? p.unit : p.units} of ${p.name}.`);
-    },
-    reportExit: () => console.log(`${role == 'buyer' ? 'You' : 'The buyer'} cancelled the order.`),
-    statusReport: () => console.log(`${role == 'buyer' ? 'Buyer' : 'Seller'} passes status report.`),
-};
+const commonInteract = {};
 
 // Seller
 if (role === 'seller') {
     const sellerInteract = {
         ...commonInteract,
         sellerInfo: {
-            announcement: 'List of products for sale: ',
+            announcement: 'List of products for sale:',
             products: [
                 { name: 'Potatoes', unit: 'bag', units: 'bags', price: toAU(200) },
                 { name: 'Carrots', unit: 'bunch', units: 'bunches', price: toAU(100) },
@@ -61,8 +48,7 @@ if (role === 'seller') {
 
     await showBalance(acc);
     const ctc = acc.contract(backend);
-    await ctc.participants.Seller(sellerInteract);
-    await backend.Seller(ctc, sellerInteract);
+    await ctc.p.Seller(sellerInteract);
     await showBalance(acc);
 
 // Buyer
@@ -72,20 +58,11 @@ if (role === 'seller') {
         shop: async (sellerInfo) => {
             console.log(sellerInfo.announcement);
             sellerInfo.products.forEach((p, i) => {
-                console.log(`${i + 1}. ${p.name} at ${toSU(p.price)} ${suStr} per unit (${p.unit}).`);
+              console.log(`${i + 1}. ${p.name} at ${toSU(p.price)} ${suStr} per unit (${p.unit}).`);
             });
             const order = { prodNum: 0, prodAmt: 0 };
-            const prodNum = await ask.ask(`Enter 1-${sellerInfo.products.length}, or 0 to exit:`, (x => x));
-            if (1 <= prodNum && prodNum <= sellerInfo.products.length ) {
-                order.prodNum = prodNum;
-                order.prodAmt = await ask.ask(`Enter number of units, or 0 to exit:`, (x => x));
-                const p = sellerInfo.products[order.prodNum - 1];
-                const unitWord = order.prodAmt == 1 ? p.unit : p.units;
-                console.log(`You are ordering ${order.prodAmt} ${unitWord} of ${p.name} at ${toSU(p.price)} ${suStr} per ${p.unit}.`);
-            }
             return order;
         },
-        confirmPurchase: async (total) => await ask.ask(`Do you want to complete the purchase for ${toSU(total)} ${suStr}?`, ask.yesno),
     };
 
     const info = await ask.ask(`Paste contract info: `, (s) => JSON.parse(s));

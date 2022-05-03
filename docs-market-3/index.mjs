@@ -46,7 +46,7 @@ if (role === 'seller') {
     const sellerInteract = {
         ...commonInteract,
         sellerInfo: {
-            announcement: 'List of products for sale: ',
+            announcement: 'List of products for sale:',
             products: [
                 { name: 'Potatoes', unit: 'bag', units: 'bags', price: toAU(200) },
                 { name: 'Carrots', unit: 'bunch', units: 'bunches', price: toAU(100) },
@@ -61,8 +61,7 @@ if (role === 'seller') {
 
     await showBalance(acc);
     const ctc = acc.contract(backend);
-    await ctc.participants.Seller(sellerInteract);
-    await backend.Seller(ctc, sellerInteract);
+    await ctc.p.Seller(sellerInteract);
     await showBalance(acc);
 
 // Buyer
