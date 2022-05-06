@@ -1,0 +1,289 @@
+# Market Day
+
+## Introduction
+In this tutorial, I am going to walk you through creating a safe application that ensures trust in transacting businesses between individuals.
+
+For the purpose of this tutorial, we will use a `seller` and a `buyer`. And we will be using [Reach](https://reach.sh/). 
+
+The following image is a pictorial description of how the application will work at the end of this tutorial.
+
+> **Insert Image Describing the flow of transaction**
+
+If this is your first time, don't worry, we will go from building a basic DApp to a more advanced one. 
+By the end, you will be confident enough to add [Reach](https://reach.sh/) to your stack and start making magic happen.
+
+Are you curious about what the end product will look or feel like? Checkout the following links:
+
+1. Link to the basic app
+2. ...
+3. ...
+
+### Prerequisite
+To make it easy for you to follow through, it is expected that you have completed the [Quick Start Guide](https://docs.reach.sh/quickstart/#quickstart).
+
+It would also be nice to have gone through the [Wisdom For Sale]() tutorial.
+
+Having put that out of the way, I am sure that you are sharing my excitment for this tutorial. So let's get started.
+
+## Basic DApp
+1. Create a folder anywhere in your machine
+
+```
+mkdir market
+```
+2.  Create 2 files: `index.rsh` and `index.mjs`
+
+The `index.mjs` is the frontend of the DApp that we are about to create since it contains the code the user will interact with. 
+`Reach` requires this file to compile even if it has to be empty at a time.
+
+The `index.rsh` is the backend which contains the logics and ensures security of the DApp. 
+This is actually where our `Reach` code will live.
+
+Let's start working in the `index.rsh` file.
+
+3. In the `index.rsh` file, define the `language` and `version`. 
+
+```reach
+"reach 0.1";
+```
+
+This helps `Reach` to decide how to compile or run the DApp. 
+Without it, you will get an error right from the editor.
+
+4. Next we need to declare a couple of variables and constants. 
+
+> Since `Reach` is a strongly typed language, we must explicitly declare our variables at the backend even if we will be using them at the frontend.
+
+The following are the variables and constants:
+
+* `choice`: This will hold an `integer` that will represent the product the buyer decides to choose. 
+An integer is represented by `UInt`. So add the following line of code:
+
+```
+const choice = UInt;
+```
+
+* `quantity`: This will hold an `integer` that will represent the quantity of the product that the buyer chose.
+
+```
+const quantity = UInt;
+```
+
+* `announcement`: This will hold a `string` that will represent a short advertisement to the buyer. A string is represented by `Bytes(28)`. 
+The integer (28) in braces defines how long the string can be. 
+
+```
+const announcement = Bytes(28);
+```
+
+* `product`: This will hold an `Object` that will contain the properties (i.e. key-value pair) of each product that the `seller` has in stock for sale.
+
+```
+const product = Object({
+  name: Bytes(10),
+  unit: Bytes(6),
+  units: Bytes(8),
+  price: UInt,
+});
+```
+
+* `products`: This will hold an `array` of `product`. We define it as:
+
+```
+const products = Array(product, 3);
+```
+
+* `commonInteract`: This will hold properties that are common to the `seller` and `buyer`.
+
+One common property is:
+
+a. `showResult`: This will be `function` that takes an `Object`s and returns nothing. 
+A `function` in Reach is defined as `Fun([input], output)`. 
+So we have the following code:
+
+```
+const commonInteract = {
+  showResult: Fun(
+    [
+      Object({ choice, quantity }),
+      Object({
+        announcement,
+        products,
+      }),
+    ],
+    Null
+  ),
+};
+```
+
+* `sellerInteract`: This will hold all properties concerning the `seller`. It includes:
+
+a. `sellerInfo`: This is an `Object` contaning the `announcement` and `products` that we defined earlier.
+
+b. `reportReady`: This is a `function` that takes in the `announcement` and `products` and returns nothing.
+
+So we have:
+
+```
+const sellerInteract = {
+  sellerInfo: Object({
+    announcement,
+    products,
+  }),
+  reportReady: Fun([announcement, products], Null),
+};
+```
+
+* `buyerInteract`: This will hold all properties concerning the `buyer`. It includes:
+
+a. `shop`: This is a `function` that represents the buyer's process in looking through the `seller`'s `products` and making a decision as to which one to pick and how many is needed. 
+
+The `function` takes in an `Object` of the `seller`'s `announcement` and `products`. It then returns an `Object` of the `buyer`'s `choice` and `quantity` like so:
+
+```
+const buyerInteract = {
+  shop: Fun([Object({ announcement, products })], Object({ choice, quantity })),
+};
+```
+
+> I know that feels like a lot of work especially if you are coming from a language like JavaScript that is weakly typed. 
+
+> But think about this: Will you rather use an application with strong or weak security?... I am sure you get the point. So, let's proceed...
+
+5. Let's now start building our `Reach` app by declaring the following function:
+
+```
+const main = Reach.App(() => {
+ // code goes here
+});
+```
+
+6. To ensure that this `main` Reach App will be available for use in other files in this project, let's `export` it by adding `export` before the `const`:
+
+```
+export const main = Reach.App(() => {
+ // code goes here
+});
+```
+
+7. For any transaction to place, there must be at least 2 participants. 
+So we will begin the code in the `main` Reach function above by defining 2 participants. Add the following code in the function:
+
+```
+const Seller = Participant("Seller", {
+    ...commonInteract,
+    ...sellerInteract,
+});
+```
+In the code above, we are telling `Reach` to recongnize `Seller` as a participant in this transaction. 
+We also go ahead to tell `Reach` that the `Seller` will have access to the `commonInteract` and `sellerInteract` properties.
+
+8. Add the following code for the second participant (`Buyer`).
+
+```
+  const Buyer = Participant("Buyer", {
+    ...commonInteract,
+    ...buyerInteract,
+  });
+```
+
+9. Now that we have participants in our application, let's tell `Reach` that we are all set and ready to start our application. 
+Enter the following code:
+
+```
+init();
+```
+Yes. That's all you need to get started.
+Now our `index.rsh` file looks like this:
+
+```
+'reach 0.1';
+
+const choice = UInt;
+const quantity = UInt;
+const announcement = Bytes(28);
+const product = Object({
+  name: Bytes(10),
+  unit: Bytes(6),
+  units: Bytes(8),
+  price: UInt,
+});
+const products = Array(product, 3);
+const commonInteract = {
+  showResult: Fun(
+    [
+      Object({ choice, quantity }),
+      Object({
+        announcement,
+        products,
+      }),
+    ],
+    Null
+  ),
+};
+const sellerInteract = {
+  sellerInfo: Object({
+    announcement,
+    products,
+  }),
+  reportReady: Fun([announcement, products], Null),
+};
+const buyerInteract = {
+  shop: Fun([Object({ announcement, products })], Object({ choice, quantity })),
+};
+
+export const main = Reach.App(() => {
+  const Seller = Participant('Seller', {
+    ...commonInteract,
+    ...sellerInteract,
+  });
+  const Buyer = Participant('Buyer', {
+    ...commonInteract,
+    ...buyerInteract,
+  });
+  init();
+});
+```
+
+That is looking good. So far, we have started our program on a beautiful note but there is still no output if we do a `./reach run` in the terminal.
+This is because there is nothing in the frontend to interact with yet.
+
+So let's turn our attention to our `index.mjs` file.
+
+10. We begin by importing a few necessary things:
+
+* `loadStdlib`: This the `Reach` standard library. It contains certain in-built functions provided for us by `Reach`. Enter the following code:
+
+```
+import { loadStdlib } from "@reach-sh/stdlib";
+```
+
+* `index.main.mjs`: This is a file that is generated when during `build` time. 
+It contains certain important information about our application. 
+You really don't have to bother with what is inside.
+
+```
+import * as backend from "./build/index.main.mjs";
+```
+
+11. Initialize the standard library that we imported a while ago:
+
+```
+const stdlib = loadStdlib();
+```
+
+12. Set up an amount that we will used as the starting balance for each participant. To do that, we enter the following code:
+
+```
+const startingBalance = stdlib.parseCurrency(100);
+```
+`parseCurrency` is one of those functions provided for us by `Reach`. 
+It helps us convert any number we enter into a currency that is acceptable on a DApp.
+
+13. Next we will now set up an account for each participant and fund the account with the `startingBalance`. 
+It will be for test purposes. Enter the following code:
+
+```
+const SellerBalance = await stdlib.newTestAccount(startingBalance);
+const BuyerBalance = await stdlib.newTestAccount(startingBalance);
+```
