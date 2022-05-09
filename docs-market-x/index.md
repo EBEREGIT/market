@@ -8,57 +8,51 @@ For the purpose of this tutorial, we will use a `seller` and a `buyer`. And we w
 
 The following image is a pictorial description of how the application will work at the end of this tutorial.
 
-> **Insert Image Describing the flow of transaction**
+> **Insert Image Describing the flow of transactions**
 
-If this is your first time, don't worry, we will go from building a basic DApp to a more advanced one.
-By the end, you will be confident enough to add [Reach](https://reach.sh/) to your stack and start making magic happen.
-
-Are you curious about what the end product will look or feel like? Checkout the following links:
-
-1. Link to the basic app
-2. ...
-3. ...
+We will go from building a basic DApp to a more advanced one.
+By the end, you will [JP: STATE SPECIFIC LEARNING OBJECTIVES]
 
 ### Prerequisite
 
-To make it easy for you to follow through, it is expected that you have completed the [Quick Start Guide](https://docs.reach.sh/quickstart/#quickstart).
+To make it easy for you to follow through, it is expected that you have installed Reach. If you need help, use the [Quick Start Guide](https://docs.reach.sh/quickstart/#quickstart).
 
-It would also be nice to have gone through the [Wisdom For Sale]() tutorial.
-
-Having put that out of the way, I am sure that you are sharing my excitment for this tutorial. So let's get started.
+This tutorial builds on the [Wisdom For Sale]() tutorial. We assume you have finished Wisdom for Sale.
 
 ## Basic DApp
 
-1. Create a folder anywhere in your machine
+1. Create a folder named `market` in your `Reach` directory:
 
-```
-mkdir market
+``` cmd
+$ mkdir market
 ```
 
 2.  Create 2 files: `index.rsh` and `index.mjs`
 
 The `index.mjs` is the frontend of the DApp that we are about to create since it contains the code the user will interact with.
-`Reach` requires this file to compile even if it has to be empty at a time.
+`Reach` requires this file to compile even if it is empty.
 
-The `index.rsh` is the backend which contains the logics and ensures security of the DApp.
+The `index.rsh` is the backend which contains the DApp's instructions and ensures security of the DApp.
 This is actually where our `Reach` code will live.
 
-Let's start working in the `index.rsh` file.
+Let's start working in `index.rsh`. // JP: NEED TO CREATE INDEX.MJS AND INDEX.RSH
 
 3. In the `index.rsh` file, define the `language` and `version`.
 
 ```reach
-"reach 0.1";
+"reach 0.1"; // JP: SHOULD BE SINGLE QUOTE. LOOK AT OTHER PROGRAMS
 ```
 
 This helps `Reach` to decide how to compile or run the DApp.
-Without it, you will get an error right from the editor.
+Without it, you will get an error from the editor.
 
-4. Next we need to declare a couple of variables and constants.
+4. Next we need to declare a couple of variables and constants. // JP: ONLY CREATING CONSTANTS. VARS CAN ONLY BE USED BEFORE A WHILE LOOP.
 
-> Since `Reach` is a strongly typed language, we must explicitly declare our variables at the backend even if we will be using them at the frontend.
+> Since `Reach` is a strongly typed language, we must explicitly declare our variables at the backend even if we will be using them at the frontend. // JP: NOT EVEN IF; THE BACKEND MIRRORS THE FRONTEND
 
 The following are the variables and constants:
+
+// JP: PRESENT THE CODE FIRST AND THEN EXPLAIN; IT IS CONFUSING TO SHOW THIS LONG LIST OF SEEMINGLY UNRELATED CONSTANTS. PRESENT THE CODE AND THEN EXPLAIN. REVIEW RPS TUT FOR AN EXAMPLE.
 
 - `choice`: This will hold an `integer` that will represent the product the buyer decides to choose.
   An integer is represented by `UInt`. So add the following line of code:
@@ -150,6 +144,8 @@ const buyerInteract = {
 };
 ```
 
+// JP: RATHER THAN ASK QUESTIONS HERE, UNLESS IT'S IN THE FORM OF A QUIZ, EXPLAIN WHY THE READER WANTS TO USE STRONG SECURITY. WHY IS THAT IMPORTANT IN WEB3?
+
 > I know that feels like a lot of work especially if you are coming from a language like JavaScript that is weakly typed.
 
 > But think about this: Will you rather use an application with strong or weak security?... I am sure you get the point. So, let's proceed...
@@ -161,6 +157,8 @@ const main = Reach.App(() => {
  // code goes here
 });
 ```
+
+// JP: AVOID "LET'S" FOR FUTURE TRANSLATIONS. SIMPLE STATE WHAT THEY SHOULD DO... `export`...
 
 6. To ensure that this `main` Reach App will be available for use in other files in this project, let's `export` it by adding `export` before the `const`:
 
@@ -179,6 +177,8 @@ const Seller = Participant("Seller", {
     ...sellerInteract,
 });
 ```
+
+// VSCODE HAS A SPELLCHECK EXTENSION. I SUGGEST DOWNLOADING IT. VERY HELPFUL :)
 
 In the code above, we are telling `Reach` to recongnize `Seller` as a participant in this transaction.
 We also go ahead to tell `Reach` that the `Seller` will have access to the `commonInteract` and `sellerInteract` properties.
@@ -254,7 +254,11 @@ export const main = Reach.App(() => {
 That is looking good. So far, we have started our program on a beautiful note but there is still no output if we do a `./reach run` in the terminal.
 This is because there is nothing in the frontend to interact with yet.
 
+// JP: LINK TO THE FULL CODE AROUND HERE ^^
+
 So let's turn our attention to our `index.mjs` file.
+
+// JP: PRESENT THE CODE
 
 10. We begin by importing a few necessary things:
 
@@ -272,7 +276,7 @@ import { loadStdlib } from "@reach-sh/stdlib";
 import * as backend from "./build/index.main.mjs";
 ```
 
-11. Initialize the standard library that we imported a while ago:
+11. Initialize the standard library that we imported a while ago: // JP: WHERE WAS AWHILE AGO? BE SPECIFIC.
 
 ```
 const stdlib = loadStdlib();
@@ -283,6 +287,8 @@ const stdlib = loadStdlib();
 ```
 const startingBalance = stdlib.parseCurrency(100);
 ```
+
+// JP: AVOID US FOR THE SAME REASONS AS LET'S
 
 `parseCurrency` is one of those functions provided for us by `Reach`.
 It helps us convert any number we enter into a currency that is acceptable on a DApp.
@@ -675,6 +681,8 @@ vii. Finally, we conclude the `Buyer`'s steps by commiting like so:
   commit();
 ```
 
+// JP: ALREADY SAID THIS
+
 > Fun Fact: If you do a `./reach run` in the terminal, you will see some more result.
 
 viii. Every transaction must have an outcome. So the following code concludes our program:
@@ -685,3 +693,5 @@ viii. Every transaction must have an outcome. So the following code concludes ou
 
 In the code above, we are telling our program to execute `showResult` function on both participants.
 
+// JP: STRONGER CONCLUSION TO THIS SECTION. THEN INTRO THE NEXT SECTION.
+// WHAT DID WE LEARN HERE? DID I LEARN MY OBJECTIVES FROM THE TOP?

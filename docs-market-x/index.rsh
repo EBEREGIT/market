@@ -10,6 +10,7 @@ const product = Object({
   units: Bytes(8),
   price: UInt,
 });
+
 const products = Array(product, 3);
 const commonInteract = {
   showResult: Fun(
@@ -23,6 +24,7 @@ const commonInteract = {
     Null
   ),
 };
+
 const sellerInteract = {
   sellerInfo: Object({
     announcement,
