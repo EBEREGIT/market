@@ -1,16 +1,10 @@
 'reach 0.1';
 
-const commonInteract = {
+const commonInteract = {};
 
-};
+const sellerInteract = {};
 
-const sellerInteract = {
-
-};
-
-const buyerInteract = {
-
-};
+const buyerInteract = {};
 
 export const main = Reach.App(() => {
   const Seller = Participant('Seller', {
