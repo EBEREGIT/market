@@ -61,8 +61,7 @@ if (role === 'seller') {
 
     await showBalance(acc);
     const ctc = acc.contract(backend);
-    await ctc.participants.Seller(sellerInteract);
-    await backend.Seller(ctc, sellerInteract);
+    await ctc.p.Seller(sellerInteract);
     await showBalance(acc);
 
 // Buyer
